@@ -30,7 +30,7 @@ public class BankController {
 
         //Controllers
         AccountController accountController=new AccountController(accountService,userService,jwtMiddleware);
-        UserController userController=new UserController(userService);
+        UserController userController=new UserController(userService,jwtMiddleware);
         AuthController authController=new AuthController(authService);
 
         //RegisterPaths

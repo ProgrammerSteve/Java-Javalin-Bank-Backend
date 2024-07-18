@@ -6,6 +6,9 @@ public class Account {
     private Integer accountId;
     private Integer userId;
     private BigDecimal balance;
+
+
+
     private String type;
 
     public Account(){}
@@ -14,6 +17,13 @@ public class Account {
         this.userId = user_id;
         this.balance = balance;
         this.type=type;
+    }
+
+    public Account(Integer accountId, Integer userId, BigDecimal balance, String type) {
+        this.accountId = accountId;
+        this.userId = userId;
+        this.balance = balance;
+        this.type = type;
     }
 
     public BigDecimal getBalance() {

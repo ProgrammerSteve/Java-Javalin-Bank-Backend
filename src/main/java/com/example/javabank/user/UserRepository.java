@@ -2,6 +2,7 @@ package com.example.javabank.user;
 
 import com.example.javabank.account.Account;
 import com.example.javabank.account.AccountRepository;
+import com.example.javabank.account.AccountService;
 import com.example.javabank.utils.database.DatabaseConfig;
 
 import javax.sql.DataSource;
@@ -19,7 +20,7 @@ public class UserRepository {
     private String sqlFindByUserId="select * from USERS where user_id=?";
     private String sqlFindAllUsers="select * from USERS";
     private String sqlCreateUser="insert into USERS (username, password) values (?, ?) RETURNING user_id";
-
+    private String sqlFindAccountsByUserId="SELECT account_id, balance, account_type FROM accounts INNER JOIN users ON users.user_id=accounts.user_id WHERE users.user_id = ?";
     DataSource dataSource= DatabaseConfig.createDataSource();
 
 
@@ -34,6 +35,26 @@ public class UserRepository {
 
     public void setAccountRepository(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
+    }
+
+    public List<Account> getAccountsByUserId(Integer userId){
+        List<Account>results=new ArrayList<>();
+        try(Connection connection= dataSource.getConnection()){
+            PreparedStatement ps=connection.prepareStatement(sqlFindAccountsByUserId);
+            ps.setInt(1,userId);
+            ResultSet resultSet=ps.executeQuery();
+            while(resultSet.next()){
+                BigDecimal balance=resultSet.getBigDecimal("balance");
+                String type=resultSet.getString("account_type");
+                Integer accountId=resultSet.getInt("account_id");
+                Account pulledAccount=new Account(accountId,userId,balance,type);
+                System.out.println("pulled: "+pulledAccount.toString());
+                results.add(pulledAccount);
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        return results;
     }
 
     public List<User> findAllUsers(){
@@ -101,7 +122,6 @@ public class UserRepository {
             try (PreparedStatement insertUserPs = connection.prepareStatement(sqlCreateUser)) {
                 insertUserPs.setString(1, user.getUsername());
                 insertUserPs.setString(2, user.getPassword());
-
 
                 ResultSet rs = insertUserPs.executeQuery();
                 if (rs.next()) {

@@ -1,5 +1,7 @@
 package com.example.javabank.user;
 
+import com.example.javabank.account.Account;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +33,7 @@ public class UserService {
         return userRepository.findAllUsers();
     }
 
+
     public boolean createUser(User user, String accountType){
         Optional<User> searchedUser=userRepository.findByUsername(user.getUsername());
         if(searchedUser.isPresent()){
@@ -38,4 +41,10 @@ public class UserService {
         }
         return userRepository.createUser(user,accountType);
     }
+
+    public List<Account> getAccountsByUserId(Integer userId){
+        return userRepository.getAccountsByUserId(userId);
+    }
+
+
 }
