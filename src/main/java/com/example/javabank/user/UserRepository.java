@@ -109,8 +109,6 @@ public class UserRepository {
                 }else{
                     new RuntimeException("user_id was not retrieved from create User");
                 }
-
-
                 Account newAccount=new Account(userId, new BigDecimal(0),accountType);
                 return accountRepository.createAccount(newAccount);
             }catch(SQLException e){

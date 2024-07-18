@@ -10,8 +10,6 @@ public class Account {
 
     public Account(){}
 
-
-
     public Account(Integer user_id, BigDecimal balance, String type) {
         this.userId = user_id;
         this.balance = balance;
@@ -39,7 +37,6 @@ public class Account {
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
     }

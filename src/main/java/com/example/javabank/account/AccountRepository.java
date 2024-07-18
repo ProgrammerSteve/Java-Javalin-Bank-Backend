@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public class AccountRepository {
     DataSource dataSource= DatabaseConfig.createDataSource();
-    private String sqlInsertAccount = "INSERT INTO accounts (balance, user_id) VALUES (?, ?)";
+    private String sqlInsertAccount = "INSERT INTO accounts (balance, user_id, account_type) VALUES (?, ?, ?)";
     private String sqlViewBalance = "SELECT balance FROM accounts WHERE user_id=?";
     private String sqlUpdateBalance = "UPDATE accounts SET balance = ? WHERE user_id = ?";
 
@@ -21,6 +21,7 @@ public class AccountRepository {
             PreparedStatement insertPs=connection.prepareStatement(sqlInsertAccount);
             insertPs.setBigDecimal(1,account.getBalance());
             insertPs.setInt(2,account.getUserId());
+            insertPs.setString(3,account.getType());
             int insertCount=insertPs.executeUpdate();
             return insertCount>0;
         }catch(SQLException e){
