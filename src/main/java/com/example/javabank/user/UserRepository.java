@@ -94,7 +94,7 @@ public class UserRepository {
         return Optional.empty();
     }
 
-    public boolean createUser(User user){
+    public boolean createUser(User user,String accountType){
         try(Connection connection= dataSource.getConnection()){
             Integer userId = null;
 
@@ -111,7 +111,7 @@ public class UserRepository {
                 }
 
 
-                Account newAccount=new Account(userId, new BigDecimal(0));
+                Account newAccount=new Account(userId, new BigDecimal(0),accountType);
                 return accountRepository.createAccount(newAccount);
             }catch(SQLException e){
                 e.printStackTrace();

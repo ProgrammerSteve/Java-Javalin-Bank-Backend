@@ -13,7 +13,7 @@ public class UserController {
     }
     public void registerPaths(Javalin app) {
         app.get("/getAll", this::getAllUsers);
-        app.post("/register", this::register);
+        app.post("/register/{accountType}", this::register);
     }
     public void getAllUsers(Context ctx){
         List<User> users=userService.findAllUsers();
@@ -23,8 +23,9 @@ public class UserController {
 
     public void register(Context ctx){
         User user=ctx.bodyAsClass(User.class);
+        String accountType=ctx.pathParam("accountType");
 
-        boolean isSuccessful=userService.createUser(user);
+        boolean isSuccessful=userService.createUser(user,accountType);
         if(isSuccessful){
             ctx.status(200);
             ctx.result("account registered!");

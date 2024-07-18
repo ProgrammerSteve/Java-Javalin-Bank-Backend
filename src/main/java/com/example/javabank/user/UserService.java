@@ -31,11 +31,11 @@ public class UserService {
         return userRepository.findAllUsers();
     }
 
-    public boolean createUser(User user){
+    public boolean createUser(User user, String accountType){
         Optional<User> searchedUser=userRepository.findByUsername(user.getUsername());
         if(searchedUser.isPresent()){
             return false;
         }
-        return userRepository.createUser(user);
+        return userRepository.createUser(user,accountType);
     }
 }
