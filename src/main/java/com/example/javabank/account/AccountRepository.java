@@ -13,8 +13,8 @@ import java.util.Optional;
 public class AccountRepository {
     DataSource dataSource= DatabaseConfig.createDataSource();
     private String sqlInsertAccount = "INSERT INTO accounts (balance, user_id, account_type) VALUES (?, ?, ?)";
-    private String sqlViewBalance = "SELECT balance FROM accounts WHERE user_id=?";
-    private String sqlUpdateBalance = "UPDATE accounts SET balance = ? WHERE user_id = ?";
+    private String sqlViewBalance = "SELECT balance FROM accounts WHERE user_id=? AND account_id=?";
+    private String sqlUpdateBalance = "UPDATE accounts SET balance = ? WHERE user_id = ? AND account_id=?";
 
     public boolean createAccount(Account account){
         try(Connection connection= dataSource.getConnection()){
@@ -29,12 +29,13 @@ public class AccountRepository {
         }
         return false;
     }
-    public boolean updateBalance(int userId, BigDecimal newBalance) {
+    public boolean updateBalance(Integer userId, BigDecimal newBalance, Integer accountId) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sqlUpdateBalance)
         ) {
             ps.setBigDecimal(1, newBalance);
             ps.setInt(2, userId);
+            ps.setInt(3,accountId);
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -42,10 +43,11 @@ public class AccountRepository {
             return false;
         }
     }
-    public Optional<BigDecimal> getBalance(int userId) {
+    public Optional<BigDecimal> getBalance(Integer userId, Integer accountId) {
         try (Connection connection = dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(sqlViewBalance)) {
             ps.setInt(1, userId);
+            ps.setInt(2,accountId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 BigDecimal balance = rs.getBigDecimal("balance");

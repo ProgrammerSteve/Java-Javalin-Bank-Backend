@@ -5,6 +5,7 @@ import com.example.javabank.user.UserService;
 import com.example.javabank.utils.auth.JwtMiddleware;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+
 import io.jsonwebtoken.Claims;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ public class AccountController {
         app.before("/view_balance",jwtMiddleware::handle);
         app.before("/withdraw",jwtMiddleware::handle);
         app.before("/deposit",jwtMiddleware::handle);
-        app.get("/view_balance", this::viewBalance);
+        app.post("/view_balance", this::viewBalance);
         app.post("/withdraw", this::withdraw);
         app.post("/deposit", this::deposit);
     }
@@ -45,7 +46,13 @@ public class AccountController {
                 return;
             }
             User user=userService.findByUserId(userId);
-            BigDecimal amount=accountService.getAccountBalance(user);
+            Integer accountId=accountService.parseReqBodyForAccountId(ctx.body());
+            if(accountId==null){
+                ctx.status(400);
+                ctx.result("Unable to parse req body");
+                return;
+            }
+            BigDecimal amount=accountService.getAccountBalance(user,accountId);
             ctx.status(200);
             ctx.result(amount.toString());
         }catch (NullPointerException e){
@@ -71,19 +78,22 @@ public class AccountController {
             return;
         }
         User user=userService.findByUserId(userId);
-        BigDecimal amount=accountService.parseReqBodyForAmount(ctx.body());
-        if(amount==null){
+        Transaction transaction=accountService.parseReqBodyForAmountAndAccountId(ctx.body());
+        if(transaction==null){
             ctx.status(400);
             ctx.result("Unable to parse req body");
             return;
         }
-        BigDecimal balance=accountService.getAccountBalance(user);
+        BigDecimal amount=transaction.getAmount();
+        Integer accountId= transaction.getAccountId();
+
+        BigDecimal balance=accountService.getAccountBalance(user,accountId);
         if(!accountService.hasSufficientFunds(balance,amount)){
             ctx.status(400);
             ctx.result("insufficient funds");
             return;
         }
-        BigDecimal results=accountService.withdrawFromAccount(user,amount);
+        BigDecimal results=accountService.withdrawFromAccount(user,amount,accountId);
         if(results==null){
             ctx.status(400);
             ctx.result("Unable to withdraw");
@@ -107,13 +117,15 @@ public class AccountController {
             return;
         }
         User user=userService.findByUserId(userId);
-        BigDecimal amount=accountService.parseReqBodyForAmount(ctx.body());
-        if(amount==null){
+        Transaction transaction=accountService.parseReqBodyForAmountAndAccountId(ctx.body());
+        if(transaction==null){
             ctx.status(400);
             ctx.result("Unable to parse req body");
             return;
         }
-        BigDecimal results=accountService.depositIntoAccount(user,amount);
+        BigDecimal amount=transaction.getAmount();
+        Integer accountId= transaction.getAccountId();
+        BigDecimal results=accountService.depositIntoAccount(user,amount,accountId);
         if(results!=null){
             ctx.status(200);
             ctx.result(results.toString());

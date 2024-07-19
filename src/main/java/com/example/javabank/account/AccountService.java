@@ -18,8 +18,8 @@ public class AccountService {
     }
 
 
-    public BigDecimal getAccountBalance(User user){
-        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId());
+    public BigDecimal getAccountBalance(User user, Integer accountId){
+        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId(), accountId);
         if(balanceOptional.isPresent()){
             return balanceOptional.get();
         }
@@ -28,24 +28,24 @@ public class AccountService {
 
 
 
-    public BigDecimal depositIntoAccount(User user, BigDecimal amount){
-        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId());
+    public BigDecimal depositIntoAccount(User user, BigDecimal amount, Integer accountId){
+        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId(),accountId);
         if(balanceOptional.isPresent()){
             BigDecimal balance=balanceOptional.get();
             BigDecimal newBalance=amount.add(balance);
-            accountRepository.updateBalance(user.getUserId(),newBalance);
+            accountRepository.updateBalance(user.getUserId(),newBalance,accountId);
             return newBalance;
         }else{
             return null;
         }
     }
 
-    public BigDecimal withdrawFromAccount(User user, BigDecimal amount){
-        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId());
+    public BigDecimal withdrawFromAccount(User user, BigDecimal amount, Integer accountId){
+        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId(), accountId);
         if(balanceOptional.isPresent()){
             BigDecimal balance=balanceOptional.get();
             BigDecimal newBalance=balance.subtract(amount);
-            accountRepository.updateBalance(user.getUserId(),newBalance);
+            accountRepository.updateBalance(user.getUserId(),newBalance, accountId);
             return newBalance;
         }else{
             return null;
@@ -55,6 +55,34 @@ public class AccountService {
     public boolean hasSufficientFunds(BigDecimal balance, BigDecimal withdraw){
         return (balance.compareTo(withdraw)>=0);
     }
+
+    public Transaction parseReqBodyForAmountAndAccountId(String reqBody){
+        BigDecimal amount;
+        Integer accountId;
+        try {
+            Map<String, Object> requestBodyMap = objectMapper.readValue(reqBody, Map.class);
+            Object amountObj = requestBodyMap.get("amount");
+            Object accountIdObj=requestBodyMap.get("accountId");
+            if (amountObj != null) {
+                String amountStr = amountObj.toString(); // Convert to String
+                double amountDbl = Double.parseDouble(amountStr); // Convert to double
+                amount=BigDecimal.valueOf(amountDbl);// Convert to BigDecimal
+            } else {
+                amount=null;
+            }
+            if (accountIdObj != null) {
+                String accountIdStr = accountIdObj.toString(); // Convert to String
+                accountId = Integer.parseInt(accountIdStr); // Convert to double
+
+            } else {
+                accountId=null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return new Transaction(accountId,amount);
+    }
+
 
     public BigDecimal parseReqBodyForAmount(String reqBody){
         BigDecimal amount;
@@ -72,5 +100,23 @@ public class AccountService {
             return null;
         }
         return amount;
+    }
+
+    public Integer parseReqBodyForAccountId(String reqBody){
+        Integer accountId;
+        try {
+            Map<String, Object> requestBodyMap = objectMapper.readValue(reqBody, Map.class);
+            Object accountIdObj = requestBodyMap.get("accountId");
+            if (accountIdObj != null) {
+                String accountIdStr = accountIdObj.toString(); // Convert to String
+                accountId = Integer.parseInt(accountIdStr); // Convert to double
+
+            } else {
+                accountId=null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return accountId;
     }
 }
