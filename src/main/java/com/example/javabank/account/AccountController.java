@@ -7,6 +7,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 import io.jsonwebtoken.Claims;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 
@@ -31,7 +32,7 @@ public class AccountController {
         app.post("/deposit", this::deposit);
     }
 
-    public void viewBalance(Context ctx){
+    public void viewBalance(@NotNull Context ctx){
         try{
             Claims claims=ctx.attribute("claims");
             if(claims==null){
@@ -66,28 +67,46 @@ public class AccountController {
 
 
     /**
-     * @param ctx
+     * <h3>AccountController:withdraw:</h3>
+     * Used for the <strong>"/withdraw"</strong> endpoint as a post request,
+     * Grabs userId from context attribute passed by middleware from jwt payload,
+     * Grabs accountId and amount from request body from context
+     * Checks balance using userId & accountId to see if there's sufficient funds.
+     * Will subtract the amount from the account balance if enough funds available.
+     * @apiNote Requires jwtMiddleware::handle to pass jwt token payload into context
+     * and a request body containing:
+     * <ul>
+     *     <li>(BigDecimal)"amount"</li>
+     *     <li>(Integer)"accountId"</li>
+     * </ul>
+     *
+     * @param ctx Context from Javalin
      */
-    public void withdraw(Context ctx){
+    public void withdraw(@NotNull Context ctx){
+
         Claims claims=ctx.attribute("claims");
         if(claims==null){
             ctx.status(400);
             ctx.result("Unable to get jwt payload");
             return;
         }
+
         Integer userId = claims.get("userId", Integer.class);
         if(userId==null){
             ctx.status(400);
             ctx.result("Unable to get userId from jwt payload");
             return;
         }
+
         User user=userService.findByUserId(userId);
+
         Transaction transaction=accountService.parseReqBodyForAmountAndAccountId(ctx.body());
         if(transaction==null){
             ctx.status(400);
             ctx.result("Unable to parse req body");
             return;
         }
+
         BigDecimal amount=transaction.getAmount();
         Integer accountId= transaction.getAccountId();
 
@@ -107,7 +126,7 @@ public class AccountController {
         ctx.result(results.toString());
     }
 
-    public void deposit(Context ctx){
+    public void deposit(@NotNull Context ctx){
         Claims claims=ctx.attribute("claims");
         if(claims==null){
             ctx.status(400);
