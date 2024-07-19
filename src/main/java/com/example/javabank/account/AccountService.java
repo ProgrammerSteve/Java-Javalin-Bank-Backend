@@ -18,8 +18,8 @@ public class AccountService {
     }
 
 
-    public BigDecimal getAccountBalance(User user, Integer accountId){
-        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId(), accountId);
+    public BigDecimal getAccountBalance(Integer accountId){
+        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(accountId);
         if(balanceOptional.isPresent()){
             return balanceOptional.get();
         }
@@ -28,24 +28,24 @@ public class AccountService {
 
 
 
-    public BigDecimal depositIntoAccount(User user, BigDecimal amount, Integer accountId){
-        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId(),accountId);
+    public BigDecimal depositIntoAccount(BigDecimal amount, Integer accountId){
+        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(accountId);
         if(balanceOptional.isPresent()){
             BigDecimal balance=balanceOptional.get();
             BigDecimal newBalance=amount.add(balance);
-            accountRepository.updateBalance(user.getUserId(),newBalance,accountId);
+            accountRepository.updateBalance(newBalance,accountId);
             return newBalance;
         }else{
             return null;
         }
     }
 
-    public BigDecimal withdrawFromAccount(User user, BigDecimal amount, Integer accountId){
-        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(user.getUserId(), accountId);
+    public BigDecimal withdrawFromAccount(BigDecimal amount, Integer accountId){
+        Optional<BigDecimal> balanceOptional=accountRepository.getBalance(accountId);
         if(balanceOptional.isPresent()){
             BigDecimal balance=balanceOptional.get();
             BigDecimal newBalance=balance.subtract(amount);
-            accountRepository.updateBalance(user.getUserId(),newBalance, accountId);
+            accountRepository.updateBalance(newBalance, accountId);
             return newBalance;
         }else{
             return null;
