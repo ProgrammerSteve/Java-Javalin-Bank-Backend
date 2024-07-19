@@ -29,7 +29,7 @@ public class BankController {
         AuthService authService=new AuthService(userService);
 
         //Controllers
-        AccountController accountController=new AccountController(accountService,userService,jwtMiddleware);
+        AccountController accountController=new AccountController(accountService,jwtMiddleware);
         UserController userController=new UserController(userService,jwtMiddleware);
         AuthController authController=new AuthController(authService);
 
