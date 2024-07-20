@@ -14,8 +14,11 @@ public class AuthService {
     }
 
     public User login(String username, String password) throws AuthenticationException {
-        User user=userService.findByUsernameAndPassword(username, password);
+        User user=userService.findByUsername(username);
         if(user == null) throw new AuthenticationException("Invalid user credentials, please try again");
+        String storedPassword=user.getPassword();
+        boolean isVerified=PasswordHasher.verifyPassword(password,storedPassword);
+        if(!isVerified) throw new AuthenticationException("Invalid user credentials, please try again");
         return user;
     }
 
