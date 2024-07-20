@@ -2,6 +2,7 @@ package com.example.javabank.user;
 
 import com.example.javabank.account.Account;
 import com.example.javabank.utils.auth.JwtMiddleware;
+import com.example.javabank.utils.auth.PasswordHasher;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
@@ -55,6 +56,9 @@ public class UserController {
     public void register(Context ctx){
         User user=ctx.bodyAsClass(User.class);
         String accountType=ctx.pathParam("accountType");
+
+        String hashedPassword = PasswordHasher.hashPasswordWithSalt(user.getPassword());
+        user.setPassword(hashedPassword);
 
         boolean isSuccessful=userService.createUser(user,accountType);
         if(isSuccessful){
