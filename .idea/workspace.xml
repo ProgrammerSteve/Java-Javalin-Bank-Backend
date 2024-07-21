@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c5e10cc6-1c7f-41b2-bc67-49181b812180" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/javabank/utils/auth/PasswordHasher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/java-bank-erd.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/javabank/user/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/javabank/user/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/javabank/user/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/javabank/user/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/javabank/utils/auth/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/javabank/utils/auth/AuthService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +52,11 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Steven\Desktop\Practice\JavaBankJavalin\src\main\resources" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="JavalinBank" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.example.javabank.BankController" />

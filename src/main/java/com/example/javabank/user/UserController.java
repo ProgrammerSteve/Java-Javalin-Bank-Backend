@@ -20,11 +20,10 @@ public class UserController {
     }
 
     public void registerPaths(Javalin app) {
-        app.before("/getAccountsByUserId",jwtMiddleware::handle);
-        app.get("/getAccountsByUserId",this::getAccountsByUserId);
-        app.get("/getAll", this::getAllUsers);
+        app.before("/get_accounts_by_user_id",jwtMiddleware::handle);
+        app.get("/get_accounts_by_user_id",this::getAccountsByUserId);
+        app.get("/get_all_users", this::getAllUsers);
         app.post("/register/{accountType}", this::register);
-        app.post("/view_user_accounts", this::register);
     }
     public void getAccountsByUserId(Context ctx){
         Claims claims=ctx.attribute("claims");
