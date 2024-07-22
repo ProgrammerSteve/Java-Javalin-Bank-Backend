@@ -1,0 +1,26 @@
+services:
+  java-backend:
+    container_name: java-backend-server
+    build: ./
+    command: java -jar /app/myapp.jar
+    working_dir: /app
+    secrets:
+      - db_password
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+
+  postgres:
+    container_name: postgres-server
+    image: postgres:14
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5435:5432"
+
+secrets:
+  db_password:
+    external: true

@@ -24,6 +24,9 @@ public class DatabaseConfig {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        config.setJdbcUrl(System.getProperty("jdbc.url"));
+        config.setUsername(properties.getProperty("jdbc.username"));
+        config.setPassword(properties.getProperty("jdbc.password"));
         return new HikariDataSource(config);
     }
 }

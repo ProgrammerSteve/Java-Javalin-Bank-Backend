@@ -9,11 +9,19 @@ import com.example.javabank.user.UserService;
 import com.example.javabank.utils.auth.AuthController;
 import com.example.javabank.utils.auth.AuthService;
 import com.example.javabank.utils.auth.JwtMiddleware;
+import io.github.cdimascio.dotenv.Dotenv;
 import io.javalin.Javalin;
 import io.javalin.json.JavalinJackson;
 
 public class BankController {
     public static void main(String[] args){
+        Dotenv dotenv = Dotenv.load();
+
+        System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY"));
+        System.setProperty("JDBC_URL", dotenv.get("JDBC_URL"));
+        System.setProperty("JDBC_USERNAME", dotenv.get("JDBC_USERNAME"));
+        System.setProperty("JDBC_PASSWORD", dotenv.get("JDBC_PASSWORD"));
+
         Javalin app = Javalin.create(config -> {
             config.jsonMapper(new JavalinJackson());
         });
