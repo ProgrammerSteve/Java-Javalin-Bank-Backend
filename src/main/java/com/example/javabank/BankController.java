@@ -15,12 +15,32 @@ import io.javalin.json.JavalinJackson;
 
 public class BankController {
     public static void main(String[] args){
-        Dotenv dotenv = Dotenv.load();
 
-        System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY"));
-        System.setProperty("JDBC_URL", dotenv.get("JDBC_URL"));
-        System.setProperty("JDBC_USERNAME", dotenv.get("JDBC_USERNAME"));
-        System.setProperty("JDBC_PASSWORD", dotenv.get("JDBC_PASSWORD"));
+        try{
+            Dotenv dotenv = Dotenv.load();
+
+            String secretKey = dotenv.get("SECRET_KEY");
+            String jdbcUrl = dotenv.get("JDBC_URL");
+            String jdbcUsername = dotenv.get("JDBC_USERNAME");
+            String jdbcPassword = dotenv.get("JDBC_PASSWORD");
+
+            if (secretKey == null) {
+                throw new IllegalStateException("secretkey environment variables are missing");
+            }
+
+            if (jdbcUrl == null || jdbcUsername == null || jdbcPassword == null) {
+                throw new IllegalStateException("database environment variables are missing");
+            }
+
+            System.setProperty("secret.key", secretKey);
+            System.setProperty("jdbc.url", jdbcUrl);
+            System.setProperty("jdbc.username", jdbcUsername);
+            System.setProperty("jdbc.password", jdbcPassword);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to load properties file", e);
+        }
 
         Javalin app = Javalin.create(config -> {
             config.jsonMapper(new JavalinJackson());

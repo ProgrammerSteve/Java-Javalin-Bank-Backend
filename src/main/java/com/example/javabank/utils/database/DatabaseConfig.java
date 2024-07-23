@@ -2,31 +2,57 @@ package com.example.javabank.utils.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class DatabaseConfig {
+    private static final int MAX_RETRIES = 50; // Number of retry attempts
+    private static final long RETRY_INTERVAL_MS = 5000; // Interval between retries (in milliseconds)
+
     public static DataSource createDataSource() {
         HikariConfig config = new HikariConfig();
-        Properties properties = new Properties();
 
-        try (InputStream input = DatabaseConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
-            if (input == null) {
-                System.out.println("Sorry, unable to find db.properties");
-                return null;
-            }
-            properties.load(input);
-            config.setJdbcUrl(properties.getProperty("jdbc.url"));
-            config.setUsername(properties.getProperty("jdbc.username"));
-            config.setPassword(properties.getProperty("jdbc.password"));
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        String url = System.getProperty("jdbc.url");
+        String username = System.getProperty("jdbc.username");
+        String password = System.getProperty("jdbc.password");
+
+        if (url == null || username == null || password == null) {
+            throw new IllegalStateException("Database environment variables are missing");
         }
-        config.setJdbcUrl(System.getProperty("jdbc.url"));
-        config.setUsername(properties.getProperty("jdbc.username"));
-        config.setPassword(properties.getProperty("jdbc.password"));
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+
         return new HikariDataSource(config);
+    }
+
+    private static void waitForDatabaseReady(String url, String username, String password) {
+        int attempt = 0;
+        while (attempt < MAX_RETRIES) {
+            try (Connection connection = new HikariDataSource(createHikariConfig(url, username, password)).getConnection()) {
+                // Connection successful, exit retry loop
+                return;
+            } catch (SQLException e) {
+                System.err.println("Database connection failed, retrying in " + RETRY_INTERVAL_MS + " ms... (Attempt " + (attempt + 1) + "/" + MAX_RETRIES + ")");
+                attempt++;
+                try {
+                    Thread.sleep(RETRY_INTERVAL_MS);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Retry sleep interrupted", ie);
+                }
+            }
+        }
+        throw new RuntimeException("Unable to connect to the database after " + MAX_RETRIES + " attempts");
+    }
+
+    private static HikariConfig createHikariConfig(String url, String username, String password) {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(url);
+        config.setUsername(username);
+        config.setPassword(password);
+        return config;
     }
 }

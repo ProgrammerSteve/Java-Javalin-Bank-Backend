@@ -1,26 +1,32 @@
+version: '3.8'  # Update to the latest version if needed
+
 services:
+  postgres:
+    image: postgres:14.12
+    container_name: postgres-server
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${JDBC_PASSWORD}
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
   java-backend:
-    container_name: java-backend-server
-    build: ./
-    command: java -jar /app/myapp.jar
-    working_dir: /app
-    secrets:
-      - db_password
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      JDBC_URL: ${JDBC_URL}
+      JDBC_USERNAME: ${JDBC_USERNAME}
+      JDBC_PASSWORD: ${JDBC_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
     ports:
       - "8000:8000"
-    volumes:
-      - ./:/app
 
-  postgres:
-    container_name: postgres-server
-    image: postgres:14
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-      POSTGRES_DB: mydatabase
-    ports:
-      - "5435:5432"
-
-secrets:
-  db_password:
-    external: true
+volumes:
+  postgres_data:

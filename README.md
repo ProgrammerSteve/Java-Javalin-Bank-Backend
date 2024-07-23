@@ -73,3 +73,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 - request body is in the format: **username (String)**, **password (String)**
   `{"username":"XXXXXX","password":"XXXXXX"}`
 
+mvn clean package
+docker-compose up --build
+docker-compose down -v
+docker build -t javalinbank .

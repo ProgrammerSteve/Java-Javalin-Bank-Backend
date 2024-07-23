@@ -7,34 +7,17 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
-import java.util.Properties;
+
 
 public class JwtUtil {
-    private static final String PROPERTIES_FILE = "application.properties";
     private static final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
-    private static String secretKey;
-
-    static {
-        Properties properties = new Properties();
-        try (InputStream input = JwtUtil.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE)) {
-            if (input == null) {
-                throw new IllegalStateException("Sorry, unable to find " + PROPERTIES_FILE);
-            }
-            properties.load(input);
-            secretKey = properties.getProperty("secret.key");
-            if (secretKey == null) {
-                throw new IllegalStateException("Secret key not found in properties file");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to load properties file", e);
-        }
-    }
 
     public static String generateToken(User user) {
+        String secretKey = System.getProperty("secret.key");
+        if (secretKey == null || secretKey.isEmpty()) {
+            throw new IllegalStateException("Database environment variables are missing");
+        }
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("userId", user.getUserId())
@@ -45,6 +28,10 @@ public class JwtUtil {
     }
 
     public static Claims validateToken(String token) {
+        String secretKey = System.getProperty("secret.key");
+        if (secretKey == null) {
+            throw new IllegalStateException("Database environment variables are missing");
+        }
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
