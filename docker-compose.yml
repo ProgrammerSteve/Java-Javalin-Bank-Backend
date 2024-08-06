@@ -1,0 +1,32 @@
+version: '3.8'  # Update to the latest version if needed
+
+services:
+  postgres:
+    image: postgres:14.12
+    container_name: postgres-server
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${JDBC_PASSWORD}
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+  java-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      JDBC_URL: ${JDBC_URL}
+      JDBC_USERNAME: ${JDBC_USERNAME}
+      JDBC_PASSWORD: ${JDBC_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
